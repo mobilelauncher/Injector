@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Play My Video</title>
+  <title>Generate Video Link</title>
   <style>
     body { background: #000; color: #fff; font-family: sans-serif; text-align: center; padding: 20px; }
     input, button { padding: 10px; font-size: 16px; margin: 10px; width: 90%; max-width: 400px; }
@@ -16,28 +16,44 @@
 <h2 id="title">Select a Video File</h2>
 <div id="inputBox">
   <input id="videoInput" type="file" accept="video/*" />
-  <button onclick="playSelectedVideo()">Play Video</button>
+  <button onclick="generateLink()">Generate Video Link</button>
   <p id="linkResult"></p>
 </div>
 
 <video id="player" controls autoplay></video>
 
 <script>
-  // Function to play the selected video from the file input
-  function playSelectedVideo() {
+  function generateLink() {
     const videoFile = document.getElementById("videoInput").files[0];
     if (!videoFile) return alert("Please select a video file!");
 
-    const videoURL = URL.createObjectURL(videoFile); // Create a URL for the selected video
-    const vid = document.getElementById("player");
+    // Create a URL for the selected video file
+    const videoURL = URL.createObjectURL(videoFile);
 
-    // Set the video source to the selected video file and display the player
-    vid.src = videoURL;
-    vid.style.display = "block";
-    document.getElementById("title").innerText = "Playing Video"; // Update title to show it's playing
+    // Create the final link that will be shared
+    const shareableLink = window.location.href + "#video=" + encodeURIComponent(videoURL);
+    
+    // Display the generated link
+    document.getElementById("linkResult").innerHTML = `
+      <b>Share this link:</b><br><a href="${shareableLink}" target="_blank">${shareableLink}</a>
+    `;
+    
+    // Optionally copy the link to the clipboard
+    navigator.clipboard.writeText(shareableLink);
+  }
 
-    // Hide the input box once video starts playing
-    document.getElementById("inputBox").style.display = "none";
+  // Check if there's a video URL in the hash and play the video
+  const hash = location.hash.slice(1);
+  const params = new URLSearchParams(hash);
+  const videoParam = params.get("video");
+  
+  if (videoParam) {
+    const decodedVideoURL = decodeURIComponent(videoParam);
+    const videoElement = document.getElementById("player");
+    videoElement.src = decodedVideoURL;
+    videoElement.style.display = "block"; // Display the video player
+    document.getElementById("title").innerText = "Playing Video"; // Change title
+    document.getElementById("inputBox").style.display = "none"; // Hide the input box
   }
 </script>
 
