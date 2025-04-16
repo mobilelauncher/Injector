@@ -1,46 +1,90 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Play My Video</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Link Generator</title>
   <style>
-    body { background: #000; color: #fff; font-family: sans-serif; text-align: center; padding: 20px; }
-    input, button { padding: 10px; font-size: 16px; margin: 10px; width: 90%; max-width: 400px; }
-    video { margin-top: 30px; width: 95%; display: none; }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .result {
+      text-align: center;
+      font-size: 18px;
+      color: #333;
+      margin-top: 20px;
+    }
   </style>
 </head>
 <body>
 
-<h2 id="title">Enter Video Link</h2>
-<div id="inputBox">
-  <input id="videoInput" placeholder="Paste video URL here" />
-  <button onclick="makeLink()">Get Link</button>
-  <p id="linkResult"></p>
-</div>
+  <h1>Link Generator</h1>
+  <div class="container">
+    <label for="fileUrl">Enter File/Video URL:</label>
+    <input type="url" id="fileUrl" placeholder="Enter the URL of the file/video" required>
 
-<video id="player" controls autoplay></video>
+    <label for="downloadOption">Download Material?</label>
+    <select id="downloadOption">
+      <option value="no">No</option>
+      <option value="yes">Yes</option>
+    </select>
 
-<script>
-  function makeLink() {
-    const link = document.getElementById("videoInput").value.trim();
-    if (!link) return alert("Paste a valid video link!");
-    const encoded = encodeURIComponent(link);
-    const finalLink = location.origin + location.pathname + "#" + encoded;
-    document.getElementById("linkResult").innerHTML = `
-      <b>Share this link:</b><br><a href="${finalLink}" target="_blank">${finalLink}</a>
-    `;
-    navigator.clipboard.writeText(finalLink);
-  }
+    <button onclick="generateLink()">Generate Sharable Link</button>
 
-  const hash = location.hash.slice(1);
-  if (hash) {
-    const decoded = decodeURIComponent(hash);
-    document.getElementById("inputBox").style.display = "none";
-    document.getElementById("title").innerText = "Playing Video";
-    const vid = document.getElementById("player");
-    vid.src = decoded;
-    vid.style.display = "block";
-  }
-</script>
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+    function generateLink() {
+      const fileUrl = document.getElementById("fileUrl").value;
+      const downloadOption = document.getElementById("downloadOption").value;
+      
+      if (!fileUrl) {
+        alert("Please enter a valid URL.");
+        return;
+      }
+
+      // Construct the generated sharable link
+      const generatedLink = `https://yourdomain.github.io/Injector/share.html?url=${encodeURIComponent(fileUrl)}&download=${downloadOption}`;
+
+      // Display the result
+      document.getElementById("result").innerHTML = `
+        <p>Generated Link:</p>
+        <a href="${generatedLink}" target="_blank">${generatedLink}</a>
+      `;
+    }
+  </script>
 
 </body>
 </html>
