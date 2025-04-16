@@ -1,130 +1,46 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <title>FF Config Applier</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Play My Video</title>
   <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
-      color: white;
-      padding: 30px;
-      text-align: center;
-    }
-
-    h1 {
-      font-size: 2em;
-      margin-top: 40px;
-      color: #00ffc3;
-    }
-
-    .box {
-      margin: 30px auto;
-      padding: 25px;
-      border-radius: 15px;
-      background: rgba(255, 255, 255, 0.05);
-      box-shadow: 0 0 15px rgba(0, 255, 200, 0.4);
-      max-width: 500px;
-    }
-
-    .fake-btn {
-      background-color: #00ffc3;
-      color: black;
-      padding: 15px;
-      margin: 10px 0;
-      width: 90%;
-      border-radius: 10px;
-      font-weight: bold;
-      font-size: 1rem;
-      cursor: pointer;
-      border: none;
-      display: block;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    input[type="file"] {
-      display: none;
-    }
-
-    .confirmation, .success {
-      display: none;
-      margin-top: 25px;
-    }
-
-    button.confirm {
-      background: #00ffc3;
-      color: black;
-      padding: 12px 25px;
-      margin-top: 10px;
-      border-radius: 8px;
-      border: none;
-      font-weight: bold;
-      cursor: pointer;
-    }
+    body { background: #000; color: #fff; font-family: sans-serif; text-align: center; padding: 20px; }
+    input, button { padding: 10px; font-size: 16px; margin: 10px; width: 90%; max-width: 400px; }
+    video { margin-top: 30px; width: 95%; display: none; }
   </style>
 </head>
 <body>
 
-  <h1>FF Config Applier</h1>
+<h2 id="title">Enter Video Link</h2>
+<div id="inputBox">
+  <input id="videoInput" placeholder="Paste video URL here" />
+  <button onclick="makeLink()">Get Link</button>
+  <p id="linkResult"></p>
+</div>
 
-  <div class="box">
-    <label class="fake-btn" onclick="document.getElementById('configFile').click()">Select Config File</label>
-    <input type="file" id="configFile" />
+<video id="player" controls autoplay></video>
 
-    <label class="fake-btn" onclick="document.getElementById('xmlFile').click()">Select XML File</label>
-    <input type="file" id="xmlFile" />
+<script>
+  function makeLink() {
+    const link = document.getElementById("videoInput").value.trim();
+    if (!link) return alert("Paste a valid video link!");
+    const encoded = encodeURIComponent(link);
+    const finalLink = location.origin + location.pathname + "#" + encoded;
+    document.getElementById("linkResult").innerHTML = `
+      <b>Share this link:</b><br><a href="${finalLink}" target="_blank">${finalLink}</a>
+    `;
+    navigator.clipboard.writeText(finalLink);
+  }
 
-    <label class="fake-btn" onclick="document.getElementById('ffFolder').click()">Select FF Folder</label>
-    <input type="file" id="ffFolder" webkitdirectory directory multiple />
-
-    <button class="fake-btn" onclick="inject()">Inject</button>
-
-    <div class="confirmation" id="confirmationBox">
-      <h3>Confirm Injection</h3>
-      <p id="xmlPreview">Reading XML file...</p>
-      <button class="confirm" onclick="confirmInject()">Confirm</button>
-    </div>
-
-    <div class="success" id="successBox">
-      <h3>Injected Successfully!</h3>
-      <p>
-        Please <strong>create a new Guest Account</strong> in-game to update diamonds.<br/>
-        (Only for <strong>India 4.8 Servers</strong>)
-      </p>
-    </div>
-  </div>
-
-  <script>
-    function inject() {
-      const xmlInput = document.getElementById("xmlFile");
-      const xmlFile = xmlInput.files[0];
-
-      if (!xmlFile) {
-        alert("Please select an XML file.");
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        const content = e.target.result;
-        const effects = content
-          .split('\n')
-          .filter(line => line.includes("diamond") || line.includes("effect") || line.includes("skin"));
-
-        document.getElementById("xmlPreview").innerText = 
-          effects.length ? effects.join("\n") : "Effects: Diamonds, Skins, Elite Pass Unlocked!";
-        document.getElementById("confirmationBox").style.display = "block";
-      };
-      reader.readAsText(xmlFile);
-    }
-
-    function confirmInject() {
-      document.getElementById("confirmationBox").style.display = "none";
-      document.getElementById("successBox").style.display = "block";
-    }
-  </script>
+  const hash = location.hash.slice(1);
+  if (hash) {
+    const decoded = decodeURIComponent(hash);
+    document.getElementById("inputBox").style.display = "none";
+    document.getElementById("title").innerText = "Playing Video";
+    const vid = document.getElementById("player");
+    vid.src = decoded;
+    vid.style.display = "block";
+  }
+</script>
 
 </body>
 </html>
