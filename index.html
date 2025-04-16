@@ -69,14 +69,17 @@
     function generateLink() {
       const fileUrl = document.getElementById("fileUrl").value;
       const downloadOption = document.getElementById("downloadOption").value;
-      
+
       if (!fileUrl) {
         alert("Please enter a valid URL.");
         return;
       }
 
-      // Construct the generated sharable link
-      const generatedLink = `https://yourdomain.github.io/Injector/share.html?url=${encodeURIComponent(fileUrl)}&download=${downloadOption}`;
+      // Automatically fetch the domain name of the current page
+      const currentDomain = window.location.origin;
+
+      // Construct the generated sharable link using the domain
+      const generatedLink = `${currentDomain}/Injector/share.html?url=${encodeURIComponent(fileUrl)}&download=${downloadOption}`;
 
       // Display the result
       document.getElementById("result").innerHTML = `
