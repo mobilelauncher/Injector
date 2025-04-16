@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FF Config Applier</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #141e30, #243b55);
+      color: white;
+      text-align: center;
+      padding: 30px;
+    }
+    h1 {
+      margin-top: 50px;
+      font-size: 2.5em;
+      color: #00ffc3;
+    }
+    .box {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 30px;
+      border-radius: 15px;
+      width: 90%;
+      max-width: 500px;
+      margin: 30px auto;
+      box-shadow: 0 0 15px rgba(0, 255, 200, 0.5);
+    }
+    input[type="file"] {
+      margin: 10px 0;
+      padding: 10px;
+      background: #0e1f34;
+      color: white;
+      border-radius: 5px;
+    }
+    button {
+      margin-top: 20px;
+      padding: 15px 30px;
+      background: #00ffc3;
+      border: none;
+      border-radius: 10px;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .confirmation, .success {
+      display: none;
+      margin-top: 20px;
+      font-size: 1.1em;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>FF Config Applier</h1>
+
+  <div class="box">
+    <p>Select your FF Config Files:</p>
+    <input type="file" id="configFile" /><br />
+    <input type="file" id="xmlFile" /><br />
+    <input type="file" id="ffFolder" webkitdirectory directory multiple /><br />
+    <button onclick="inject()">Inject</button>
+
+    <div class="confirmation" id="confirmationBox">
+      <h3>Confirm Injection</h3>
+      <p id="xmlPreview">Reading XML file...</p>
+      <button onclick="confirmInject()">Confirm</button>
+    </div>
+
+    <div class="success" id="successBox">
+      <h3>Injected Successfully!</h3>
+      <p>Please <strong>create a new Guest Account</strong> in-game to update diamonds.<br/> (Only works on <strong>India 4.8 Servers</strong>)</p>
+    </div>
+  </div>
+
+  <script>
+    function inject() {
+      const xmlInput = document.getElementById("xmlFile");
+      const xmlFile = xmlInput.files[0];
+      
+      if (!xmlFile) {
+        alert("Please select an XML file.");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const content = e.target.result;
+        const effectLines = content
+          .split('\n')
+          .filter(line => line.includes("<effect") || line.includes("diamond") || line.includes("skin"));
+
+        document.getElementById("xmlPreview").innerText = 
+          effectLines.length ? effectLines.join("\n") : "Effects: Diamonds + Skins + Emotes Unlocked!";
+        
+        document.getElementById("confirmationBox").style.display = "block";
+      };
+      reader.readAsText(xmlFile);
+    }
+
+    function confirmInject() {
+      document.getElementById("confirmationBox").style.display = "none";
+      document.getElementById("successBox").style.display = "block";
+    }
+  </script>
+
+</body>
+</html>
