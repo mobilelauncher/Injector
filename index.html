@@ -1,61 +1,124 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Generate Video Link</title>
+  <title>Video Share</title>
   <style>
-    body { background: #000; color: #fff; font-family: sans-serif; text-align: center; padding: 20px; }
-    input, button { padding: 10px; font-size: 16px; margin: 10px; width: 90%; max-width: 400px; }
-    video { margin-top: 30px; width: 95%; display: none; }
-    #linkResult { color: #0f0; font-size: 16px; margin-top: 10px; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #101010;
+      color: #fff;
+      padding: 16px;
+    }
+
+    h1 {
+      font-size: 20px;
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    input[type="file"] {
+      width: 100%;
+      padding: 14px;
+      border: 1px solid #333;
+      border-radius: 10px;
+      background: #1a1a1a;
+      color: #ccc;
+      font-size: 15px;
+    }
+
+    button {
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      background: #00aaff;
+      color: white;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    video {
+      width: 100%;
+      border-radius: 10px;
+      display: none;
+      margin-top: 20px;
+    }
+
+    .link-output {
+      word-wrap: break-word;
+      font-size: 13px;
+      color: #aaa;
+      text-align: center;
+    }
+
+    .floating-button {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      background: #222;
+      padding: 10px 18px;
+      border-radius: 50px;
+      font-size: 14px;
+      border: 1px solid #444;
+      color: #ccc;
+      display: none;
+    }
+
+    .credit {
+      margin-top: 40px;
+      text-align: center;
+      font-size: 12px;
+      color: #555;
+    }
   </style>
 </head>
 <body>
 
-<h2 id="title">Select a Video File</h2>
-<div id="inputBox">
-  <input id="videoInput" type="file" accept="video/*" />
-  <button onclick="generateLink()">Generate Video Link</button>
-  <p id="linkResult"></p>
-</div>
+  <h1>Video Share</h1>
 
-<video id="player" controls autoplay></video>
+  <div class="container" id="uploadBox">
+    <input type="file" id="fileInput" accept="video/*">
+    <button onclick="generateLink()">Generate Link</button>
+    <div class="link-output" id="linkOutput"></div>
+  </div>
 
-<script>
-  function generateLink() {
-    const videoFile = document.getElementById("videoInput").files[0];
-    if (!videoFile) return alert("Please select a video file!");
+  <video id="videoPlayer" controls autoplay></video>
 
-    // Create a URL for the selected video file
-    const videoURL = URL.createObjectURL(videoFile);
+  <div class="floating-button" id="createBtn" onclick="location.href='index.html'">+ Create</div>
 
-    // Create the final link that will be shared
-    const shareableLink = window.location.href + "#video=" + encodeURIComponent(videoURL);
-    
-    // Display the generated link
-    document.getElementById("linkResult").innerHTML = `
-      <b>Share this link:</b><br><a href="${shareableLink}" target="_blank">${shareableLink}</a>
-    `;
-    
-    // Optionally copy the link to the clipboard
-    navigator.clipboard.writeText(shareableLink);
-  }
+  <div class="credit">TCS | Minimalist UI</div>
 
-  // Check if there's a video URL in the hash and play the video
-  const hash = location.hash.slice(1);
-  const params = new URLSearchParams(hash);
-  const videoParam = params.get("video");
-  
-  if (videoParam) {
-    const decodedVideoURL = decodeURIComponent(videoParam);
-    const videoElement = document.getElementById("player");
-    videoElement.src = decodedVideoURL;
-    videoElement.style.display = "block"; // Display the video player
-    document.getElementById("title").innerText = "Playing Video"; // Change title
-    document.getElementById("inputBox").style.display = "none"; // Hide the input box
-  }
-</script>
+  <script>
+    function generateLink() {
+      const file = document.getElementById('fileInput').files[0];
+      if (!file) return alert("Select a video first.");
+      const blobUrl = URL.createObjectURL(file);
+      const link = location.origin + location.pathname + "#" + encodeURIComponent(blobUrl);
+      document.getElementById('linkOutput').innerHTML = `<p>Sharable Link:<br><a style="color:#00aaff" href="${link}">${link}</a></p>`;
+      navigator.clipboard.writeText(link);
+    }
+
+    const hash = location.hash.slice(1);
+    if (hash) {
+      const video = document.getElementById('videoPlayer');
+      const url = decodeURIComponent(hash);
+      video.src = url;
+      video.style.display = "block";
+      document.getElementById('uploadBox').style.display = "none";
+      document.getElementById('createBtn').style.display = "block";
+    }
+  </script>
 
 </body>
 </html>
