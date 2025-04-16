@@ -11,14 +11,12 @@
       color: #fff;
       padding: 16px;
     }
-
     h1 {
       font-size: 20px;
       font-weight: 600;
       text-align: center;
       margin-bottom: 24px;
     }
-
     .container {
       max-width: 500px;
       margin: auto;
@@ -26,28 +24,24 @@
       flex-direction: column;
       gap: 16px;
     }
-
-    input[type="file"] {
+    input, button {
       width: 100%;
       padding: 14px;
-      border: 1px solid #333;
       border-radius: 10px;
-      background: #1a1a1a;
-      color: #ccc;
       font-size: 15px;
     }
-
+    input {
+      border: 1px solid #333;
+      background: #1a1a1a;
+      color: #ccc;
+    }
     button {
-      padding: 14px;
       border: none;
-      border-radius: 10px;
       background: #00aaff;
       color: white;
-      font-size: 16px;
       font-weight: 500;
       cursor: pointer;
     }
-
     .link-box {
       background: #1a1a1a;
       padding: 12px;
@@ -55,21 +49,18 @@
       text-align: center;
       margin-top: 10px;
     }
-
     .link {
       color: #00ddff;
       font-size: 14px;
       margin-bottom: 10px;
       word-break: break-all;
     }
-
     .btn-row {
       display: flex;
       gap: 10px;
       justify-content: center;
       margin-top: 6px;
     }
-
     .btn-small {
       background: #222;
       border: 1px solid #333;
@@ -79,34 +70,35 @@
       font-size: 14px;
       cursor: pointer;
     }
-
     .congrats {
       text-align: center;
       font-size: 13px;
       margin-top: 12px;
       color: #888;
     }
-
     video {
       width: 100%;
       border-radius: 10px;
       display: none;
       margin-top: 20px;
     }
-
-    .floating-button {
-      position: fixed;
-      top: 16px;
-      right: 16px;
-      background: #222;
-      padding: 10px 18px;
-      border-radius: 50px;
-      font-size: 14px;
-      border: 1px solid #444;
-      color: #ccc;
-      display: none;
+    .tabs {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
     }
-
+    .tab {
+      padding: 10px 20px;
+      cursor: pointer;
+      background: #1a1a1a;
+      color: #ccc;
+      border-radius: 10px;
+      margin: 0 5px;
+    }
+    .tab.active {
+      background: #00aaff;
+      color: white;
+    }
     .credit {
       margin-top: 40px;
       text-align: center;
@@ -119,20 +111,58 @@
 
   <h1>Video Share</h1>
 
-  <div class="container" id="uploadBox">
-    <input type="file" id="fileInput" accept="video/*">
-    <button onclick="generateLink()">Generate Link</button>
-    <div class="link-box" id="linkOutput"></div>
-    <div class="congrats" id="timeTaken"></div>
+  <div class="container" id="authBox">
+    <input type="text" id="username" placeholder="Enter Username">
+    <input type="password" id="password" placeholder="Enter Password">
+    <button onclick="signup()">Sign Up / Login</button>
   </div>
 
-  <video id="videoPlayer" controls autoplay></video>
+  <div id="mainContent" style="display:none;">
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('upload')">Upload</div>
+      <div class="tab" onclick="switchTab('history')">History</div>
+    </div>
 
-  <div class="floating-button" id="createBtn" onclick="location.href='index.html'">+ Create</div>
+    <div class="container" id="uploadTab">
+      <input type="file" id="fileInput" accept="video/*">
+      <button onclick="generateLink()">Generate Link</button>
+      <div class="link-box" id="linkOutput"></div>
+      <div class="congrats" id="timeTaken"></div>
+    </div>
+
+    <div class="container" id="historyTab" style="display:none;">
+      <div id="historyList"></div>
+    </div>
+
+    <video id="videoPlayer" controls autoplay></video>
+  </div>
 
   <div class="credit">TCS | Minimal UI</div>
 
   <script>
+    function signup() {
+      const user = document.getElementById("username").value;
+      const pass = document.getElementById("password").value;
+      if (!user || !pass) return alert("Please enter both username and password.");
+      localStorage.setItem("videoUser", user);
+      localStorage.setItem("videoPass", pass);
+      showMain();
+    }
+
+    function checkLogin() {
+      const user = localStorage.getItem("videoUser");
+      const pass = localStorage.getItem("videoPass");
+      if (user && pass) {
+        showMain();
+      }
+    }
+
+    function showMain() {
+      document.getElementById("authBox").style.display = "none";
+      document.getElementById("mainContent").style.display = "block";
+      loadHistory();
+    }
+
     function generateLink() {
       const startTime = performance.now();
       const file = document.getElementById('fileInput').files[0];
@@ -150,7 +180,28 @@
 
       const endTime = performance.now();
       const seconds = ((endTime - startTime) / 1000).toFixed(1);
-      document.getElementById('timeTaken').innerText = `Congrats! Your Video Link Was Generated in ${seconds} Seconds! Wow`;
+      document.getElementById('timeTaken').innerText = `Congrats! Your Video Link Was Generated in ${seconds} Seconds!`;
+
+      // Save to history
+      let history = JSON.parse(localStorage.getItem("videoHistory") || "[]");
+      history.push(fakeUrl);
+      localStorage.setItem("videoHistory", JSON.stringify(history));
+    }
+
+    function loadHistory() {
+      const history = JSON.parse(localStorage.getItem("videoHistory") || "[]");
+      const list = history.map(link => `<div class="link-box"><div class="link">${link}</div></div>`).join('');
+      document.getElementById("historyList").innerHTML = list || "No uploads yet.";
+    }
+
+    function switchTab(tab) {
+      document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+      document.querySelectorAll(".tab").forEach(t => {
+        if (t.innerText.toLowerCase() === tab) t.classList.add("active");
+      });
+
+      document.getElementById("uploadTab").style.display = tab === "upload" ? "flex" : "none";
+      document.getElementById("historyTab").style.display = tab === "history" ? "flex" : "none";
     }
 
     const hash = location.hash.slice(1);
@@ -159,10 +210,10 @@
       const url = decodeURIComponent(hash);
       video.src = url;
       video.style.display = "block";
-      document.getElementById('uploadBox').style.display = "none";
-      document.getElementById('createBtn').style.display = "block";
+      document.getElementById('uploadTab').style.display = "none";
     }
-  </script>
 
+    checkLogin();
+  </script>
 </body>
 </html>
