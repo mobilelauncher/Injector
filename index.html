@@ -48,18 +48,50 @@
       cursor: pointer;
     }
 
+    .link-box {
+      background: #1a1a1a;
+      padding: 12px;
+      border-radius: 10px;
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .link {
+      color: #00ddff;
+      font-size: 14px;
+      margin-bottom: 10px;
+      word-break: break-all;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 6px;
+    }
+
+    .btn-small {
+      background: #222;
+      border: 1px solid #333;
+      padding: 8px 16px;
+      border-radius: 8px;
+      color: #00aaff;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .congrats {
+      text-align: center;
+      font-size: 13px;
+      margin-top: 12px;
+      color: #888;
+    }
+
     video {
       width: 100%;
       border-radius: 10px;
       display: none;
       margin-top: 20px;
-    }
-
-    .link-output {
-      word-wrap: break-word;
-      font-size: 13px;
-      color: #aaa;
-      text-align: center;
     }
 
     .floating-button {
@@ -90,23 +122,35 @@
   <div class="container" id="uploadBox">
     <input type="file" id="fileInput" accept="video/*">
     <button onclick="generateLink()">Generate Link</button>
-    <div class="link-output" id="linkOutput"></div>
+    <div class="link-box" id="linkOutput"></div>
+    <div class="congrats" id="timeTaken"></div>
   </div>
 
   <video id="videoPlayer" controls autoplay></video>
 
   <div class="floating-button" id="createBtn" onclick="location.href='index.html'">+ Create</div>
 
-  <div class="credit">TCS | Minimalist UI</div>
+  <div class="credit">TCS | Minimal UI</div>
 
   <script>
     function generateLink() {
+      const startTime = performance.now();
       const file = document.getElementById('fileInput').files[0];
       if (!file) return alert("Select a video first.");
       const blobUrl = URL.createObjectURL(file);
-      const link = location.origin + location.pathname + "#" + encodeURIComponent(blobUrl);
-      document.getElementById('linkOutput').innerHTML = `<p>Sharable Link:<br><a style="color:#00aaff" href="${link}">${link}</a></p>`;
-      navigator.clipboard.writeText(link);
+      const fakeUrl = "https://yourlink.com#" + encodeURIComponent(blobUrl);
+
+      document.getElementById('linkOutput').innerHTML = `
+        <div class="link">${fakeUrl}</div>
+        <div class="btn-row">
+          <button class="btn-small" onclick="window.open('${blobUrl}', '_blank')">Open Fast</button>
+          <button class="btn-small" onclick="navigator.clipboard.writeText('${fakeUrl}')">Copy Fast</button>
+        </div>
+      `;
+
+      const endTime = performance.now();
+      const seconds = ((endTime - startTime) / 1000).toFixed(1);
+      document.getElementById('timeTaken').innerText = `Congrats! Your Video Link Was Generated in ${seconds} Seconds! Wow`;
     }
 
     const hash = location.hash.slice(1);
